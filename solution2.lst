@@ -1,0 +1,15 @@
+MongoDB shell version v4.0.18
+connecting to: mongodb://127.0.0.1:27017/transport?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("c12546da-dd4f-4403-93bd-4d81e9ee9185") }
+MongoDB server version: 4.0.18
+(1) db.transport.remove({"EMPLOYEE.name": "John Fox","EMPLOYEE.position": "mechanic"})
+WriteResult({ "nRemoved" : 1 })
+(2) db.transport.update({"EMPLOYEE.e#":"11" }, { $unset: {"EMPLOYEE.dob":""}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+(3) db.transport.update({"EMPLOYEE.e#":"11", "EMPLOYEE.trips.trip number":"7" },{ $set: {"EMPLOYEE.trips.$.registration":null, "EMPLOYEE.trips.$.trip date":null, "EMPLOYEE.trips.$.legs":null, }})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+(4) db.transport.update({"EMPLOYEE.e#":"11"},{$addToSet:{"EMPLOYEE.trips":{"trip number":"999","registration":"PKR786"}}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+(5) db.transport.update({"EMPLOYEE.e#":"11", "EMPLOYEE.trips.trip number":"15"},{ $set: {"EMPLOYEE.trips.$.trip date":"28-SEP-18"}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+bye

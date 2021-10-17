@@ -1,0 +1,152 @@
+MongoDB shell version v4.0.4
+connecting to: mongodb://127.0.0.1:27017
+Implicit session: session { "id" : UUID("8bad419c-70fc-4f4e-9d7d-9b78c36ee774") }
+MongoDB server version: 4.0.4
+(1) db.transport.find({"EMPLOYEE.e#":"11"},{"EMPLOYEE.trips":0})
+{
+	"_id" : ObjectId("5ebd7e8327d738269c0adfa3"),
+	"EMPLOYEE" : {
+		"e#" : "11",
+		"name" : "Adam Fox",
+		"dob" : "04-MAY-70",
+		"address" : "45 Victoria St. Hurstville, NSW 2456",
+		"hiredate" : "12-JAN-99",
+		"position" : "driver",
+		"licence" : "20005",
+		"status" : "ON LEAVE"
+	}
+}
+(2) db.transport.find({$or:[{"TRUCK.registration":"PKR768"},{"TRUCK.registration":"PKR008"}, {"TRUCK.registration":"SST005"}]},{"_id":0})
+{
+	"TRUCK" : {
+		"registration" : "PKR008",
+		"capacity" : "22000",
+		"weight" : "8800",
+		"status" : "AVAILABLE"
+	}
+}
+{
+	"TRUCK" : {
+		"registration" : "PKR768",
+		"capacity" : "1234",
+		"weight" : "3000",
+		"status" : "AVAILABLE"
+	}
+}
+{
+	"TRUCK" : {
+		"registration" : "SST005",
+		"capacity" : "12000",
+		"weight" : "50000",
+		"status" : "USED"
+	}
+}
+(3) db.transport.aggregate([{"$unwind": "$EMPLOYEE.maintenances"},{"$match": {"EMPLOYEE.position": "mechanic"}},{"$group": {"_id": {"name": "$EMPLOYEE.name","license": "$EMPLOYEE.licence"},"Number_of_trips": {"$sum": 1 },"Total_time": {"$sum": { "$toInt": "$EMPLOYEE.maintenances.time"}}}}])
+{
+	"_id" : {
+		"name" : "Peter Taylor",
+		"license" : "10345"
+	},
+	"Number_of_trips" : 9,
+	"Total_time" : 2800
+}
+{
+	"_id" : {
+		"name" : "John Gray",
+		"license" : "10452"
+	},
+	"Number_of_trips" : 4,
+	"Total_time" : 450
+}
+{
+	"_id" : {
+		"name" : "Michael Jones",
+		"license" : "7773"
+	},
+	"Number_of_trips" : 13,
+	"Total_time" : 1640
+}
+{
+	"_id" : {
+		"name" : "Phillip Cox",
+		"license" : "10005"
+	},
+	"Number_of_trips" : 2,
+	"Total_time" : 60
+}
+{
+	"_id" : {
+		"name" : "John Fox",
+		"license" : "22205"
+	},
+	"Number_of_trips" : 8,
+	"Total_time" : 1220
+}
+{
+	"_id" : {
+		"name" : "Peter O'Brien",
+		"license" : "23302"
+	},
+	"Number_of_trips" : 2,
+	"Total_time" : 800
+}
+(4) db.transport.aggregate([{ $unwind: "$EMPLOYEE.maintenances"},{$match: {"EMPLOYEE.name": "John Fox"}},{"$project": {"_id": 0,"resgistration": "$EMPLOYEE.maintenances.registration"}}])
+{ "resgistration" : "LUCY01" }
+{ "resgistration" : "LUCY01" }
+{ "resgistration" : "KKK007" }
+{ "resgistration" : "QRT834" }
+{ "resgistration" : "PKR768" }
+{ "resgistration" : "KKK007" }
+{ "resgistration" : "QRT834" }
+{ "resgistration" : "PKR768" }
+(5) db.transport.find({"EMPLOYEE.trips" : {"$size":0}},{"EMPLOYEE.name":1, "_id":0})
+{ "EMPLOYEE" : { "name" : "Andrew K. Smith" } }
+{ "EMPLOYEE" : { "name" : "Michael Potter" } }
+(6) db.transport.find({"EMPLOYEE.trips":{"$elemMatch":{"legs":"Wollongong"}}},{"EMPLOYEE.name":1, "_id":0})
+{ "EMPLOYEE" : { "name" : "John Smith" } }
+{ "EMPLOYEE" : { "name" : "John Doe" } }
+{ "EMPLOYEE" : { "name" : "Adam Taylor" } }
+{ "EMPLOYEE" : { "name" : "Frederic Jones" } }
+{ "EMPLOYEE" : { "name" : "John Lucas" } }
+{ "EMPLOYEE" : { "name" : "Adam Fox" } }
+(7) db.transport.find({$and: [{"EMPLOYEE.trips.registration": {$exists: false}},{"EMPLOYEE.position": "driver"}]},{"EMPLOYEE.name": 1,"EMPLOYEE.status": 1,"EMPLOYEE.registration": 1,"EMPLOYEE.licence": 1,"_id": 0})
+{
+	"EMPLOYEE" : {
+		"name" : "Andrew K. Smith",
+		"licence" : "10008",
+		"status" : "ON LEAVE"
+	}
+}
+{
+	"EMPLOYEE" : {
+		"name" : "Michael Potter",
+		"licence" : "10009",
+		"status" : "ON LEAVE"
+	}
+}
+{
+	"EMPLOYEE" : {
+		"name" : "Corona",
+		"licence" : "666",
+		"status" : "REALLY BUSY"
+	}
+}
+(8) db.transport.aggregate([{$group: {"_id": "$EMPLOYEE.licence","count": {$sum: 1},"EMPLOYEE": {$addToSet:{"name":"$EMPLOYEE.name","dob": "$EMPLOYEE.dob","address": "$EMPLOYEE.address","licence": "$EMPLOYEE.licence",}}}},{$match: {count: {$gt: 1}}},{$project: {"_id": 0,"EMPLOYEE.name": 1,"EMPLOYEE.dob": 1,"EMPLOYEE.address": 1,"EMPLOYEE.licence": 1}}])
+{
+	"EMPLOYEE" : [
+		{
+			"name" : "Covid19",
+			"dob" : "29-NOV-2019",
+			"address" : " Wuhan, China",
+			"licence" : "666"
+		},
+		{
+			"name" : "Corona",
+			"dob" : "29-NOV-2019",
+			"address" : " Wuhan, China",
+			"licence" : "666"
+		}
+	]
+}
+{ "EMPLOYEE" : [ { } ] }
+bye
